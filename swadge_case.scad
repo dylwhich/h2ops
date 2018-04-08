@@ -41,9 +41,9 @@ esp_off = [64, 24, 0];
 esp_sz = [15, 12];
 
 // LED positioning parameters
-led_space = 16;
-led_off_x = 2;
-led_off_y = 43;
+led_space = 17;
+led_off_x = 1;
+led_off_y = 41;
 led_sz = [5, 5];
 
 swadge = false;

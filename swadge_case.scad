@@ -43,27 +43,35 @@ cavity_ht = 2;
 wall_ht = battery_ht + pcb_ht + cavity_ht;
 
 // Depth of inset in lid
-top_inset_ht = 1;
+top_inset_ht = 1.25;
 
 // Thickness of very top
-top_ht = 2;
+top_ht = 1;
 
 // Offset from board origin of ESP can
 esp_off = [64, 23, 0];
 esp_sz = [15, 12];
 
 // LED positioning parameters
-led_space = 17;
-led_off_x = 1;
-led_off_y = 41;
+led_space = 16;
+led_off_x = 1.5;
+led_off_y = 42;
 led_sz = [5, 5];
-
-swadge = false;
-case = true;
 
 button_names = ["Up", "Left", "Right", "Down", "Select", "Start", "B", "A"];
 button_xs = [13.0, 05.0, 22.0, 14.0, 39.0, 50.0, 71.0, 82.0];
 button_ys = [20.0, 12.0, 12.0, 04.0, 05.0, 05.0, 11.0, 16.0];
+
+screw_xs = [wall_w, wall_w+55, wall_w, wall_w+55];
+screw_ys = [50 + wall_w*2, 50 + wall_w*2, -wall_w, -wall_w];
+screw_yo = [0, 0, -2, -2];
+screw_hole_d = 1.5;
+screw_len = 3;
+
+swadge = false;
+case = true;
+top = false;
+plunger = false;
 
 function border_scale() = [(100 + 2*wall_w)/100, (50 + 2*wall_w)/50, 1.0];
 
@@ -149,12 +157,6 @@ translate([wall_w, wall_w, floor_ht]) {
         }
     }
 }
-
-screw_xs = [wall_w, wall_w+55, wall_w, wall_w+55];
-screw_ys = [50 + wall_w*2, 50 + wall_w*2, -wall_w, -wall_w];
-screw_yo = [0, 0, -2, -2];
-screw_hole_d = 1.5;
-screw_len = 3;
 
 module screw_things(hole=false) {
     for (i = [0:3]) {
@@ -295,10 +297,14 @@ module case_top() {
 if (case) {
     color("blue", .6)
     case_base();
+}
 
-    //color("red")
-    //plunger();
+if (plunger) {
+    color("red")
+    plunger();
+}
 
+if (top) {
     color("orange")
     case_top();
 }

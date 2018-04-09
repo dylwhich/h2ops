@@ -72,7 +72,7 @@ screw_hole_d = 1.5;
 screw_len = 3;
 
 swadge = false;
-case = true;
+case = false;
 top = false;
 plunger = false;
 
@@ -297,17 +297,25 @@ module case_top() {
     }
 }
 
-if (case) {
-    color("blue", .6)
+if (mode == "bottom") {
     case_base();
-}
-
-if (plunger) {
-    color("red")
-    plunger();
-}
-
-if (top) {
-    color("orange")
+} else if (mode == "top") {
     case_top();
+} else if (mode == "plunger") {
+    plunger();
+} else {
+    if (case) {
+        color("blue", .6)
+        case_base();
+    }
+
+    if (plunger) {
+        color("red")
+        plunger();
+    }
+
+    if (top) {
+        color("orange")
+        case_top();
+    }
 }

@@ -106,11 +106,11 @@ translate([wall_w, wall_w, floor_ht]) {
         linear_extrude(pcb_ht)
         difference() {
             swadge_shape();
-            
+
             translate([94.5, 25, 0])
             circle(d=5);
         }
-    
+
         // Components
         translate([0, 0, pcb_ht]) {
             // Buttons
@@ -138,32 +138,85 @@ translate([wall_w, wall_w, floor_ht]) {
     }
 }
 
+screw_xs = [wall_w, wall_w+55, wall_w, wall_w+55];
+screw_ys = [50 + wall_w*2, 50 + wall_w*2, -wall_w, -wall_w];
+screw_yo = [0, 0, -2, -2];
+screw_hole_d = 1.5;
+screw_len = 3;
+
+module screw_things(hole=false) {
+    for (i = [0:3]) {
+        translate([screw_xs[i], screw_ys[i], 0]) {
+            difference() {
+                union() {
+                    square([4, 2], center=false);
+
+                    translate([2, 2+screw_yo[i], 0])
+                    circle(2);
+                }
+
+                if (hole) {
+                    translate([2, 2+screw_yo[i]])
+                    circle(d=screw_hole_d);
+                }
+            }
+        }
+    }
+}
+
 module case_base() {
     // Exterior Stuff
-    linear_extrude(floor_ht)
-    scale(border_scale())
-    swadge_shape();
-    
-    // Walls
-    translate([0, 0, floor_ht])
-    linear_extrude(wall_ht)
     difference() {
+        linear_extrude(floor_ht)
         scale(border_scale())
         swadge_shape();
         
-        translate([wall_w, wall_w, 0])
-        swadge_shape(false);
+        // Punch nicely chamfered holes for some zipties
+        square_sz = 3;
+        square_xs = [15, 15, 65, 65];
+        square_ys = [12, 50-12, 12, 50-12];
+
+        for (i = [0:3]) {
+            translate([square_xs[i]+square_sz/2, square_ys[i]+square_sz/2, -.1])
+            linear_extrude(floor_ht+.2, scale=1.8)
+            square(square_sz, center=true);
+        }
     }
-    
+
+    // Screw things at floor without holes
+    linear_extrude(floor_ht)
+    screw_things(false);
+
+    // Walls
+    translate([0, 0, floor_ht]) {
+        linear_extrude(wall_ht) {
+            difference() {
+                scale(border_scale())
+                swadge_shape();
+
+                translate([wall_w, wall_w, 0])
+                swadge_shape(false);
+            }
+        }
+
+        // Screw things along wall without holes
+        linear_extrude(wall_ht - screw_len)
+        screw_things(false);
+
+        // Screw things along wall top with holes
+        translate([0, 0, wall_ht - screw_len])
+        linear_extrude(screw_len)
+        screw_things(true);
+    }
+
     // Interior Stuff
     translate([wall_w, wall_w, floor_ht]) {
-
         // Post for lanyard hole
         translate([94.5, 25, 0]) {
             // Support pillar
             linear_extrude(height=battery_ht)
             circle(d=8);
-            
+
             // Alignment pin
             linear_extrude(height=wall_ht)
             circle(d=5);
@@ -174,7 +227,7 @@ module case_base() {
 module plunger() {
     linear_extrude(cavity_ht-button_ht)
     circle(d=button_d - .1);
-    
+
     translate([0, 0, cavity_ht-button_ht])
     linear_extrude(top_inset_ht + top_ht + button_ht)
     circle(d=1.7);
@@ -182,19 +235,23 @@ module plunger() {
 
 module case_top() {
     // Top stuff
-    translate([0, 0, floor_ht + battery_ht + pcb_ht + cavity_ht]) {
+    translate([0, 0, floor_ht + battery_ht + pcb_ht + cavity_ht - top_inset_ht]) {
         difference() {
             union() {
                 translate([wall_w, wall_w, 0])
                 linear_extrude(top_inset_ht)
                 swadge_shape();
-                
+
                 translate([0, 0, top_inset_ht])
                 linear_extrude(top_ht)
                 scale(border_scale())
                 swadge_shape();
+
+                translate([0, 0, top_inset_ht])
+                linear_extrude(top_ht)
+                screw_things(true);
             }
-        
+
             translate([wall_w, wall_w, -.1])
             scale([1, 1, 1]) {
                 // Punch holes for each button
@@ -202,19 +259,19 @@ module case_top() {
                     translate([button_xs[i], button_ys[i], 0]) {
                         linear_extrude(.1 + top_inset_ht)
                         circle(d=button_d - .5);
-                        
+
                         translate([0, 0, .1 + top_inset_ht])
                         linear_extrude(top_ht + .1)
                         circle(d=button_d - 1.5);
-                        
+
                         //plunger();
                     }
                 }
-                
+
                 // Punch holes for the LEDs
                 linear_extrude(top_inset_ht + top_ht + .2)
                 leds(true);
-                
+
                 // Punch a hole for the ESP
                 translate(esp_off - [.2, .2, 0])
                 linear_extrude(top_inset_ht + top_ht + .2)
@@ -227,7 +284,7 @@ module case_top() {
 if (case) {
     color("blue", .6)
     case_base();
-    
+
     //color("red")
     //plunger();
 

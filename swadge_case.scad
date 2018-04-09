@@ -10,7 +10,7 @@ $fa = 5;
 // a 2D shape.
 
 swadge_x = 60;
-swadge_y = 50.5;
+swadge_y = 50.25;
 
 // Whether or not to match the swadge's pointy shape
 contour = true;
@@ -46,7 +46,7 @@ plunger_pad = .3;
 wall_w = 2;
 
 // Space above PCB before lid
-cavity_ht = 2;
+cavity_ht = 3;
 
 // Wall height
 wall_ht = battery_ht + pcb_ht + cavity_ht;

@@ -12,6 +12,9 @@ $fa = 5;
 swadge_x = 60;
 swadge_y = 50.5;
 
+// Whether or not to match the swadge's pointy shape
+contour = true;
+
 // Bottom layer height
 floor_ht = 2;
 
@@ -74,7 +77,7 @@ screw_yo = [0, 0, -2, -2];
 screw_hole_d = 1.5;
 screw_len = 3;
 
-swadge = true;
+swadge = false;
 case = true;
 top = false;
 plunger = false;
@@ -95,11 +98,15 @@ module swadge_shape(hole) {
 
     translate([swadge_x, 0, 0]) {
         intersection() {
-            circle(swadge_y);
             square([swadge_y, swadge_y]);
             
-            translate([0, swadge_y, 0])
-            circle(swadge_y);
+            if (contour)
+            intersection() {
+                circle(swadge_y);
+
+                translate([0, swadge_y, 0])
+                circle(swadge_y);
+            }
         }
     }
 }
@@ -117,49 +124,51 @@ module leds(circular=false) {
     }
 }
 
-if (swadge)
-translate([wall_w, wall_w, floor_ht]) {
-    // Battery Pack
-    color("black", .7)
-    translate([4, 7.5, 0]) {
-        linear_extrude(battery_ht)
-            square([57.5, 33.5]);
-    }
-
-    // Swadge Body
-    translate([0, 0, battery_ht]) {
-        color("red", .7)
-        linear_extrude(pcb_ht)
-        difference() {
-            swadge_shape();
-
-            translate([94.5, swadge_y/2, 0])
-            circle(d=5);
+module swadge_mock() {
+    translate([wall_w, wall_w, floor_ht]) {
+        // Battery Pack
+        color("black", .7)
+        translate([4, 7.5, 0]) {
+            linear_extrude(battery_ht)
+                square([57.5, 33.5]);
         }
 
-        // Components
-        translate([0, 0, pcb_ht]) {
-            // Buttons
-            for (i = [0:7]) {
-                translate([button_xs[i], button_ys[i], 0]) {
-                    color("gold")
-                    linear_extrude(button_ht)
-                    circle(d=button_d, center=true);
-                    
-                    translate([0, -button_d, 0])
-                    color("white")
-                    text(button_names[i], .8);
-                }
+        // Swadge Body
+        translate([0, 0, battery_ht]) {
+            color("red", .7)
+            linear_extrude(pcb_ht)
+            difference() {
+                swadge_shape();
+
+                translate([94.5, swadge_y/2, 0])
+                circle(d=5);
             }
-            
-            linear_extrude(1.5)
-            leds();
-            
-            // ESP8266
-            translate(esp_off)
-            color("silver")
-            linear_extrude(3)
-            square(esp_sz);
+
+            // Components
+            translate([0, 0, pcb_ht]) {
+                // Buttons
+                for (i = [0:7]) {
+                    translate([button_xs[i], button_ys[i], 0]) {
+                        color("gold")
+                        linear_extrude(button_ht)
+                        circle(d=button_d, center=true);
+
+                        translate([0, -button_d, 0])
+                        color("white")
+                        linear_extrude(.01)
+                        text(button_names[i], .8);
+                    }
+                }
+
+                linear_extrude(1.5)
+                leds();
+
+                // ESP8266
+                translate(esp_off)
+                color("silver")
+                linear_extrude(3)
+                square(esp_sz);
+            }
         }
     }
 }
@@ -310,6 +319,10 @@ if (mode == "bottom") {
     if (case) {
         color("blue", .6)
         case_base();
+    }
+
+    if (swadge) {
+        swadge_mock();
     }
 
     if (plunger) {

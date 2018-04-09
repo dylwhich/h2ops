@@ -61,7 +61,7 @@ wall_ht = battery_ht + pcb_ht + cavity_ht;
 top_inset_ht = 0;
 
 // Thickness of very top
-top_ht = 1;
+top_ht = 1.2;
 
 // Offset from board origin of ESP can
 

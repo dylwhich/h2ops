@@ -1,5 +1,8 @@
 echo(version=version());
 
+$fs = .5;
+$fa = 5;
+
 //%import("projection.stl");
 
 // projection() without the cut = true parameter will project

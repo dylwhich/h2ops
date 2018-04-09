@@ -52,7 +52,7 @@ button_lever_l = 3;
 wall_w = 2;
 
 // Space above PCB before lid
-cavity_ht = 3;
+cavity_ht = .6;
 
 // Wall height
 wall_ht = battery_ht + pcb_ht + cavity_ht;

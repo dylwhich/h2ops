@@ -235,7 +235,7 @@ module case_base() {
             circle(d=8);
 
             // Alignment pin
-            linear_extrude(height=wall_ht)
+            linear_extrude(height=wall_ht - top_inset_ht)
             circle(d=5);
         }
     }

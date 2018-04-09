@@ -37,7 +37,7 @@ top_inset_ht = 1;
 top_ht = 2;
 
 // Offset from board origin of ESP can
-esp_off = [64, 24, 0];
+esp_off = [64, 23, 0];
 esp_sz = [15, 12];
 
 // LED positioning parameters

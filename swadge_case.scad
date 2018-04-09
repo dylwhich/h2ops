@@ -207,7 +207,7 @@ module case_base() {
 
         for (i = [0:3]) {
             translate([square_xs[i]+square_sz/2, square_ys[i]+square_sz/2, -.1])
-            linear_extrude(floor_ht+.2, scale=1.8)
+            linear_extrude(floor_ht+.2, scale=2.5)
             square(square_sz, center=true);
         }
     }

@@ -10,7 +10,7 @@ $fa = 5;
 // a 2D shape.
 
 swadge_x = 60;
-swadge_y = 50.25;
+swadge_y = 51.5;
 
 // Whether or not to match the swadge's pointy shape
 contour = true;
@@ -30,17 +30,23 @@ button_d = 4;
 // Button height
 button_ht = 1;
 
-// Diameter of the bottom part of the plunger
-plunger_d = button_d - .5;
+// Diameter of the circular part of the plunger lever
+plunger_d = button_d - 1.5;
 
 // Diameter of the top (pressable) part of the plunger
-plunger_top_d = 2;
+plunger_top_d = 1.5;
 
 // Height of the plunger above the case
-plunger_ht = 3;
+plunger_ht = 2;
 
 // Extra space to give plunger
 plunger_pad = .3;
+
+// The width of the slot between the plunger and the rest
+button_slot_w = .75;
+
+// The length of the slot the plunger is on
+button_lever_l = 3;
 
 // Outer wall thickness
 wall_w = 2;
@@ -52,24 +58,46 @@ cavity_ht = 3;
 wall_ht = battery_ht + pcb_ht + cavity_ht;
 
 // Depth of inset in lid
-top_inset_ht = 1.25;
+top_inset_ht = 0;
 
 // Thickness of very top
 top_ht = 1;
 
 // Offset from board origin of ESP can
-esp_off = [64, 23, 0];
-esp_sz = [15, 12];
+
+// Bottom left corner of full esp: 63, 21.5
+// Top right: 87, 37.5 (24x16)
+esp_off = [63, 21.5, 0];
+esp_sz = [24, 16];
+
+// Other random components
+// All offsets are at the center
+other_components = [
+    [60.5, 46.0, 4.0, 3.0],
+    [73.5, 17.0, 4.0, 3.0],
+    [59.5, 08.5, 1.0, 2.0],
+    [60.0, 21.5, 2.0, 1.0],
+    [59.0, 34.5, 1.0, 2.0],
+    [16.0, 41.0, 1.0, 2.0],
+    [72.5, 40.5, 2.0, 1.0]
+];
+
+round_components = [
+    [06.0, 15.5, 1.0],
+    [06.0, 32.5, 1.0],
+    [59.0, 30.5, 1.0],
+    [59.0, 15.5, 1.0]
+];
 
 // LED positioning parameters
 led_space = 16;
-led_off_x = 1.5;
-led_off_y = 42;
-led_sz = [5, 5];
+led_off_x = 1;
+led_off_y = 41;
+led_sz = [6, 7];
 
 button_names = ["Up", "Left", "Right", "Down", "Select", "Start", "B", "A"];
-button_xs = [13.0, 05.0, 22.0, 14.0, 39.0, 50.0, 71.0, 82.0];
-button_ys = [20.0, 12.0, 12.0, 04.0, 05.0, 05.0, 11.0, 16.0];
+button_xs = [13.5, 05.5, 21.5, 13.5, 39.0, 50.0, 70.0, 82.0];
+button_ys = [20.0, 12.0, 12.0, 04.0, 05.0, 05.0, 10.5, 15.5];
 
 // Must be at least 2 or Bad Things happen
 screw_count = 2;
@@ -78,8 +106,8 @@ screw_hole_d = 2;
 screw_len = 5;
 
 swadge = false;
-case = true;
-top = false;
+case = false;
+top = true;
 plunger = false;
 
 function border_scale() = [(100 + 2*wall_w)/100, (swadge_y + 2*wall_w)/swadge_y, 1.0];
@@ -293,29 +321,74 @@ module case_top() {
                 screw_things(true);
             }
 
-            translate([wall_w, wall_w, -.1])
-            scale([1, 1, 1]) {
+            translate([wall_w, wall_w, -.1]) {
+                // Various square components
+                for (opts = other_components) {
+                    x = opts[0];
+                    y = opts[1];
+                    w = opts[2];
+                    h = opts[3];
+
+                    translate([x, y, 0])
+                    linear_extrude(.2 + top_inset_ht + top_ht)
+                    square([w, h], center=true);
+                }
+
+                for (opts = round_components) {
+                    x = opts[0];
+                    y = opts[1];
+                    d = opts[2];
+
+                    translate([x, y, 0])
+                    linear_extrude(.2 + top_inset_ht + top_ht)
+                    circle(d=d, center=true);
+                }
+
                 // Punch holes for each button
                 // but skip the start button
                 for (i = [0, 1, 2, 3, 4, 6, 7]) {
                     translate([button_xs[i], button_ys[i], 0]) {
-                        linear_extrude(.1 + top_inset_ht)
+                        linear_extrude(.2 + top_inset_ht + top_ht)
+                        difference() {
+                            union() {
+                                translate([-(plunger_d+button_slot_w)/2, 0, 0])
+                                square([plunger_d+button_slot_w, button_lever_l]);
+                                circle(d=plunger_d+button_slot_w);
+                            }
+
+                            union() {
+                                translate([-plunger_d/2, 0, 0])
+                                square([plunger_d, button_lever_l]);
+
+                                circle(d=plunger_d);
+                            }
+                        }
+
+                        /*linear_extrude(.1 + top_inset_ht)
                         circle(d=plunger_d + plunger_pad);
 
                         translate([0, 0, .1 + top_inset_ht])
                         linear_extrude(top_ht + .1)
-                        circle(d=plunger_top_d + plunger_pad);
+                        circle(d=plunger_top_d + plunger_pad);*/
                     }
                 }
 
                 // Punch holes for the LEDs
                 linear_extrude(top_inset_ht + top_ht + .2)
-                leds(true);
+                leds(false);
 
                 // Punch a hole for the ESP
                 translate(esp_off - [.2, .2, 0])
                 linear_extrude(top_inset_ht + top_ht + .2)
                 square(esp_sz + [.4, .4, 0]);
+            }
+        }
+
+        translate([wall_w, wall_w, top_inset_ht + top_ht])
+        for (i = [0, 1, 2, 3, 4, 6, 7]) {
+            translate([button_xs[i], button_ys[i], 0]) {
+                linear_extrude(plunger_ht)
+                circle(d=plunger_top_d);
             }
         }
     }
@@ -324,7 +397,6 @@ module case_top() {
 if (mode == "bottom") {
     case_base();
 } else if (mode == "top") {
-    rotate([180, 0, 0])
     case_top();
 } else if (mode == "plunger") {
     plunger();

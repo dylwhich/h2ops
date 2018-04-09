@@ -21,6 +21,18 @@ button_d = 4;
 // Button height
 button_ht = 1;
 
+// Diameter of the bottom part of the plunger
+plunger_d = button_d - .5;
+
+// Diameter of the top (pressable) part of the plunger
+plunger_top_d = 2;
+
+// Height of the plunger above the case
+plunger_ht = 3;
+
+// Extra space to give plunger
+plunger_pad = .3;
+
 // Outer wall thickness
 wall_w = 2;
 
@@ -226,11 +238,11 @@ module case_base() {
 
 module plunger() {
     linear_extrude(cavity_ht-button_ht)
-    circle(d=button_d - .1);
+    circle(d=plunger_d);
 
     translate([0, 0, cavity_ht-button_ht])
-    linear_extrude(top_inset_ht + top_ht + button_ht)
-    circle(d=1.7);
+    linear_extrude(top_inset_ht + top_ht + plunger_ht)
+    circle(d=plunger_top_d);
 }
 
 module case_top() {
@@ -255,16 +267,15 @@ module case_top() {
             translate([wall_w, wall_w, -.1])
             scale([1, 1, 1]) {
                 // Punch holes for each button
-                for (i = [0:7]) {
+                // but skip the start button
+                for (i = [0, 1, 2, 3, 4, 6, 7]) {
                     translate([button_xs[i], button_ys[i], 0]) {
                         linear_extrude(.1 + top_inset_ht)
-                        circle(d=button_d - .5);
+                        circle(d=plunger_d + plunger_pad);
 
                         translate([0, 0, .1 + top_inset_ht])
                         linear_extrude(top_ht + .1)
-                        circle(d=button_d - 1.5);
-
-                        //plunger();
+                        circle(d=plunger_top_d + plunger_pad);
                     }
                 }
 

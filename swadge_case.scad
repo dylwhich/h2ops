@@ -324,6 +324,7 @@ module case_top() {
 if (mode == "bottom") {
     case_base();
 } else if (mode == "top") {
+    rotate([180, 0, 0])
     case_top();
 } else if (mode == "plunger") {
     plunger();

@@ -9,6 +9,9 @@ $fa = 5;
 // the outline of the object onto the X/Y plane. The result is
 // a 2D shape.
 
+swadge_x = 60;
+swadge_y = 50.5;
+
 // Bottom layer height
 floor_ht = 2;
 
@@ -66,23 +69,23 @@ button_xs = [13.0, 05.0, 22.0, 14.0, 39.0, 50.0, 71.0, 82.0];
 button_ys = [20.0, 12.0, 12.0, 04.0, 05.0, 05.0, 11.0, 16.0];
 
 screw_xs = [wall_w, wall_w+55, wall_w, wall_w+55];
-screw_ys = [50 + wall_w*2, 50 + wall_w*2, -wall_w, -wall_w];
+screw_ys = [swadge_y + wall_w*2, swadge_y + wall_w*2, -wall_w, -wall_w];
 screw_yo = [0, 0, -2, -2];
 screw_hole_d = 1.5;
 screw_len = 3;
 
-swadge = false;
-case = false;
+swadge = true;
+case = true;
 top = false;
 plunger = false;
 
-function border_scale() = [(100 + 2*wall_w)/100, (50 + 2*wall_w)/50, 1.0];
+function border_scale() = [(100 + 2*wall_w)/100, (swadge_y + 2*wall_w)/swadge_y, 1.0];
 
 module swadge_shape(hole) {    
-    square([60, 50]);
+    square([swadge_x, swadge_y]);
     
     // This is more "accurate" [maybe?]
-    /*translate([60, 0, 0]) {
+    /*translate([swadge_x, 0, 0]) {
         intersection() {
             translate([-8, 52, 0]) circle(55);
             square([50, 50]);
@@ -90,13 +93,13 @@ module swadge_shape(hole) {
         }
     }*/
 
-    translate([60, 0, 0]) {
+    translate([swadge_x, 0, 0]) {
         intersection() {
-            circle(50);
-            square([50, 50]);
+            circle(swadge_y);
+            square([swadge_y, swadge_y]);
             
-            translate([0, 50, 0])
-            circle(50);
+            translate([0, swadge_y, 0])
+            circle(swadge_y);
         }
     }
 }
@@ -130,7 +133,7 @@ translate([wall_w, wall_w, floor_ht]) {
         difference() {
             swadge_shape();
 
-            translate([94.5, 25, 0])
+            translate([94.5, swadge_y/2, 0])
             circle(d=5);
         }
 
@@ -191,7 +194,7 @@ module case_base() {
         // Punch nicely chamfered holes for some zipties
         square_sz = 3;
         square_xs = [15, 15, 65, 65];
-        square_ys = [12, 50-12, 12, 50-12];
+        square_ys = [12, swadge_y-12, 12, swadge_y-12];
 
         for (i = [0:3]) {
             translate([square_xs[i]+square_sz/2, square_ys[i]+square_sz/2, -.1])
@@ -229,7 +232,7 @@ module case_base() {
     // Interior Stuff
     translate([wall_w, wall_w, floor_ht]) {
         // Post for lanyard hole
-        translate([94.5, 25, 0]) {
+        translate([94.5, swadge_y/2, 0]) {
             // Support pillar
             linear_extrude(height=battery_ht)
             circle(d=8);

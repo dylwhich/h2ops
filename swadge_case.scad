@@ -71,11 +71,11 @@ button_names = ["Up", "Left", "Right", "Down", "Select", "Start", "B", "A"];
 button_xs = [13.0, 05.0, 22.0, 14.0, 39.0, 50.0, 71.0, 82.0];
 button_ys = [20.0, 12.0, 12.0, 04.0, 05.0, 05.0, 11.0, 16.0];
 
-screw_xs = [wall_w, wall_w+55, wall_w, wall_w+55];
-screw_ys = [swadge_y + wall_w*2, swadge_y + wall_w*2, -wall_w, -wall_w];
-screw_yo = [0, 0, -2, -2];
-screw_hole_d = 1.5;
-screw_len = 3;
+// Must be at least 2 or Bad Things happen
+screw_count = 2;
+screw_post_d = 5;
+screw_hole_d = 2;
+screw_len = 5;
 
 swadge = false;
 case = true;
@@ -174,18 +174,30 @@ module swadge_mock() {
 }
 
 module screw_things(hole=false) {
-    for (i = [0:3]) {
-        translate([screw_xs[i], screw_ys[i], 0]) {
-            difference() {
+    for (i = [0:screw_count-1]) {
+        translate([(swadge_x - screw_post_d) / (screw_count - 1) * i, 0, 0])
+        difference() {
+            union() {
+                // Top screw
+                translate([0, swadge_y+2*wall_w, 0])
+                square([screw_post_d, screw_post_d/2], center=false);
+
+                translate([screw_post_d/2, screw_post_d/2+swadge_y+2*wall_w, 0])
+                circle(d=screw_post_d);
+
+                translate([0, -screw_post_d/2, 0])
+                square([screw_post_d, screw_post_d/2], center=false);
+
+                translate([screw_post_d/2, -screw_post_d/2, 0])
+                circle(d=screw_post_d);
+            }
+
+            if (hole) {
                 union() {
-                    square([4, 2], center=false);
+                    translate([screw_post_d/2, swadge_y+2*wall_w+screw_post_d/2])
+                    circle(d=screw_hole_d);
 
-                    translate([2, 2+screw_yo[i], 0])
-                    circle(2);
-                }
-
-                if (hole) {
-                    translate([2, 2+screw_yo[i]])
+                    translate([screw_post_d/2, -screw_post_d/2, 0])
                     circle(d=screw_hole_d);
                 }
             }
